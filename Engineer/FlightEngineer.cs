@@ -606,31 +606,37 @@ namespace Engineer
             if (settings.Get<bool>("Vessel: Thrust to Weight (Surface)", true)) GUILayout.Label("TWR (Surface)", headingStyle);
             GUILayout.EndVertical();
 
-            GUILayout.BeginVertical();
-            if (settings.Get<bool>("Vessel: Show All DeltaV Stages"))
+            if (stageCount > 0)
             {
-                for (int i = stageCount - 1; i >= 0; i--)
+                int lastStage = Math.Min(stageCount-1, Staging.lastStage);
+
+                GUILayout.BeginVertical();
+                if (settings.Get<bool>("Vessel: Show All DeltaV Stages"))
                 {
-                    stageDeltaV = stages[i].deltaV;
-                    if (stageDeltaV > 0)
+                    for (int i = stageCount - 1; i >= 0; i--)
                     {
-                        if (settings.Get<bool>("Vessel: DeltaV (Stage)")) GUILayout.Label(Tools.FormatNumber(stages[i].deltaV, "m/s", 0) + " (" + Tools.FormatTime(stages[i].time) + ")", dataStyle);
+                        stageDeltaV = stages[i].deltaV;
+                        if (stageDeltaV > 0)
+                        {
+                            if (settings.Get<bool>("Vessel: DeltaV (Stage)")) GUILayout.Label(Tools.FormatNumber(stages[i].deltaV, "m/s", 0) + " (" + Tools.FormatTime(stages[i].time) + ")", dataStyle);
+                        }
                     }
                 }
+                else
+                {
+                    if (settings.Get<bool>("Vessel: DeltaV (Stage)")) GUILayout.Label(Tools.FormatNumber(stages[lastStage].deltaV, "m/s", 0) + " (" + Tools.FormatTime(stages[lastStage].time) + ")", dataStyle);
+                }
+                if (settings.Get<bool>("Vessel: DeltaV (Total)")) GUILayout.Label(Tools.FormatNumber(stages[lastStage].totalDeltaV, "m/s", 0) + " (" + Tools.FormatTime(stages[lastStage].totalTime) + ")", dataStyle);
+                if (settings.Get<bool>("Vessel: Specific Impulse")) GUILayout.Label(Tools.FormatNumber(stages[lastStage].isp, "s", 3), dataStyle);
+                if (settings.Get<bool>("Vessel: Mass")) GUILayout.Label(EngineerTools.WeightFormatter(stages[lastStage].mass, stages[lastStage].totalMass), dataStyle);
+                if (settings.Get<bool>("Vessel: Thrust (Maximum)")) GUILayout.Label(Tools.FormatSI(stages[lastStage].thrust, Tools.SIUnitType.Force), dataStyle);
+                if (settings.Get<bool>("Vessel: Thrust (Throttle)")) GUILayout.Label(Tools.FormatSI(stages[lastStage].actualThrust, Tools.SIUnitType.Force), dataStyle);
+                if (settings.Get<bool>("Vessel: Thrust to Weight (Throttle)")) GUILayout.Label(Tools.FormatNumber(stages[lastStage].actualThrustToWeight, 3), dataStyle);
+                if (settings.Get<bool>("Vessel: Thrust to Weight (Current)")) GUILayout.Label(Tools.FormatNumber(stages[lastStage].thrustToWeight, 3), dataStyle);
+                if (settings.Get<bool>("Vessel: Thrust to Weight (Surface)", true)) GUILayout.Label(Tools.FormatNumber(stages[lastStage].thrust / (stages[lastStage].totalMass * (this.vessel.mainBody.gravParameter / Math.Pow(this.vessel.mainBody.Radius, 2))), 3), dataStyle);
+                GUILayout.EndVertical();
             }
-            else
-            {
-                if (settings.Get<bool>("Vessel: DeltaV (Stage)")) GUILayout.Label(Tools.FormatNumber(stages[Staging.lastStage].deltaV, "m/s", 0) + " (" + Tools.FormatTime(stages[Staging.lastStage].time) + ")", dataStyle);
-            }
-            if (settings.Get<bool>("Vessel: DeltaV (Total)")) GUILayout.Label(Tools.FormatNumber(stages[Staging.lastStage].totalDeltaV, "m/s", 0) + " (" + Tools.FormatTime(stages[Staging.lastStage].totalTime) + ")", dataStyle);
-            if (settings.Get<bool>("Vessel: Specific Impulse")) GUILayout.Label(Tools.FormatNumber(stages[Staging.lastStage].isp, "s", 3), dataStyle);
-            if (settings.Get<bool>("Vessel: Mass")) GUILayout.Label(EngineerTools.WeightFormatter(stages[Staging.lastStage].mass, stages[Staging.lastStage].totalMass), dataStyle);
-            if (settings.Get<bool>("Vessel: Thrust (Maximum)")) GUILayout.Label(Tools.FormatSI(stages[Staging.lastStage].thrust, Tools.SIUnitType.Force), dataStyle);
-            if (settings.Get<bool>("Vessel: Thrust (Throttle)")) GUILayout.Label(Tools.FormatSI(stages[Staging.lastStage].actualThrust, Tools.SIUnitType.Force), dataStyle);
-            if (settings.Get<bool>("Vessel: Thrust to Weight (Throttle)")) GUILayout.Label(Tools.FormatNumber(stages[Staging.lastStage].actualThrustToWeight, 3), dataStyle);
-            if (settings.Get<bool>("Vessel: Thrust to Weight (Current)")) GUILayout.Label(Tools.FormatNumber(stages[Staging.lastStage].thrustToWeight, 3), dataStyle);
-            if (settings.Get<bool>("Vessel: Thrust to Weight (Surface)", true)) GUILayout.Label(Tools.FormatNumber(stages[Staging.lastStage].thrust / (stages[Staging.lastStage].totalMass * (this.vessel.mainBody.gravParameter / Math.Pow(this.vessel.mainBody.Radius, 2))), 3), dataStyle);
-            GUILayout.EndVertical();
+
             GUILayout.EndHorizontal();
         }
 

@@ -46,6 +46,9 @@ namespace EngineerToolbar
 
         private void LateUpdate()
         {
+            if (button == null)
+                return;
+
             if (HighLogic.LoadedSceneIsEditor)
             {
                 SetButtonVisibility(BuildEngineer.isActive);
