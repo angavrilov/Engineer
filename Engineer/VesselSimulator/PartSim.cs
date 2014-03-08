@@ -336,7 +336,7 @@ namespace Engineer.VesselSimulator
             {
                 if (partSim.part is FuelLine && (partSim.part as FuelLine).target == this.part)
                 {
-                    sourceParts.Add(partSim);
+                    AddSourcePart(partSim);
                 }
             }
 
@@ -346,13 +346,21 @@ namespace Engineer.VesselSimulator
                     (attachNode.attachedPart.fuelCrossFeed || attachNode.attachedPart is FuelTank) &&
                     !(this.part.NoCrossFeedNodeKey.Length > 0 && attachNode.id.Contains(this.part.NoCrossFeedNodeKey)))
                 {
-                    sourceParts.Add((PartSim)partSimLookup[attachNode.attachedPart]);
+                    AddSourcePart((PartSim)partSimLookup[attachNode.attachedPart]);
                 }
             }
 
             if (this.part.parent != null && this.part.parent.fuelCrossFeed == true && !IsDecoupler(this.part.parent))
             {
-                sourceParts.Add((PartSim)partSimLookup[this.part.parent]);
+                AddSourcePart((PartSim)partSimLookup[this.part.parent]);
+            }
+        }
+
+        public void AddSourcePart(PartSim part)
+        {
+            if (!sourceParts.Contains(part))
+            {
+                sourceParts.Add(part);
             }
         }
 
@@ -513,24 +521,25 @@ namespace Engineer.VesselSimulator
 
         private bool CanSupplyResourceRecursive(int type, List<PartSim> visited = null)
         {
-            if (visited == null)
-            {
-                visited = new List<PartSim>();
-            }
+            var newVisited = (visited == null) ? new List<PartSim>() : new List<PartSim>(visited);
 
+            return CanSupplyResourceRecursiveInner(type, newVisited);
+        }
+
+        private bool CanSupplyResourceRecursiveInner(int type, List<PartSim> visited)
+        {
             if (this.resources[type] > 1f)
             {
                 return true;
             }
 
-            List<PartSim> newVisited = new List<PartSim>(visited);
-            newVisited.Add(this);
+            visited.Add(this);
 
             foreach (PartSim partSim in sourceParts)
             {
                 if (!visited.Contains(partSim))
                 {
-                    if (partSim.CanSupplyResourceRecursive(type, newVisited))
+                    if (partSim.CanSupplyResourceRecursiveInner(type, visited))
                     {
                         return true;
                     }
