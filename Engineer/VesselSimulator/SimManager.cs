@@ -81,7 +81,7 @@ namespace Engineer.VesselSimulator
             catch { /* Something went wrong! */ }
 
             _timer.Stop();
-            _millisecondsBetweenSimulations = 10 * _timer.ElapsedMilliseconds;
+            _millisecondsBetweenSimulations =  Math.Min(10 * _timer.ElapsedMilliseconds, 15*1000);
 
             _timer.Reset();
             _timer.Start();
