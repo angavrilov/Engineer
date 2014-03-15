@@ -70,7 +70,7 @@ namespace Engineer
 
             if (negative) value = -value;
 
-            if (value < 1000000d)
+            if (value < 5000000d)
             {
                 if (value < 1d)
                 {
